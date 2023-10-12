@@ -1,0 +1,38 @@
+version: '2'
+
+services:
+  backend:
+    build: .
+    command: sh -c "python manage.py collectstatic --noinput && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    working_dir: /code
+    tty: true
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/code
+    depends_on:
+      database:
+        condition: service_healthy
+    links:
+      - database
+
+  database:
+    image: postgres:13.4
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data/
+
+    # volumes:
+    #   - postgres_data:/var/lib/postgresql/data/

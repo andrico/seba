@@ -1,4 +1,4 @@
-./postgres_data
-./venv
+postgres_data/
+venv/
 .env
-./static
+static/
